@@ -1,45 +1,58 @@
-var mymap = L.map("mapid").setView([51.505, -0.09], 13);
-
-L.tileLayer(
-  "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
-  {
-    attribution:
-      'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 18,
-    id: "mapbox/streets-v11",
-    tileSize: 512,
-    zoomOffset: -1,
-    accessToken:
-      "sk.eyJ1IjoiYmpjYTE5OTgiLCJhIjoiY2trOG04dWdpMG0xNDJvbXM0OGNybGE4ZCJ9.dFq-gZy8Lsa7NhClVR8vCg",
+//Confirmar se o Browser suporta a localização
+function geoFindMe() {
+  if (!navigator.geolocation) {
+    console.log("Geolocation is not supported by your browser");
+    return;
   }
-).addTo(mymap);
-
-var marker = L.marker([51.5, -0.09]).addTo(mymap);
-
-var circle = L.circle([51.508, -0.11], {
-  color: "red",
-  fillColor: "#f03",
-  fillOpacity: 0.5,
-  radius: 500,
-}).addTo(mymap);
-
-var polygon = L.polygon([
-  [51.509, -0.08],
-  [51.503, -0.06],
-  [51.51, -0.047],
-]).addTo(mymap);
-
-marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
-circle.bindPopup("I am a circle.");
-polygon.bindPopup("I am a polygon.");
-
-var popup = L.popup()
-  .setLatLng([51.5, -0.09])
-  .setContent("I am a standalone popup.")
-  .openOn(mymap);
-
-function onMapClick(e) {
-  alert("You clicked the map at " + e.latlng);
 }
 
-mymap.on("click", onMapClick);
+navigator.geolocation.getCurrentPosition(myLocation);
+function myLocation(position) {
+  var details = position.coords;
+  console.log(details);
+  var mbAttr =
+      'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+      'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    mbUrl =
+      "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=sk.eyJ1IjoiYmpjYTE5OTgiLCJhIjoiY2trOG04dWdpMG0xNDJvbXM0OGNybGE4ZCJ9.dFq-gZy8Lsa7NhClVR8vCg";
+
+  var Light = L.tileLayer(mbUrl, {
+      id: "mapbox/light-v9",
+      tileSize: 512,
+      zoomOffset: -1,
+      attribution: mbAttr,
+    }),
+    streets = L.tileLayer(mbUrl, {
+      id: "mapbox/streets-v11",
+      tileSize: 512,
+      zoomOffset: -1,
+      attribution: mbAttr,
+    }),
+    sat = L.tileLayer(mbUrl, {
+      id: "mapbox/satellite-v9",
+      tileSize: 512,
+      zoomOffset: -1,
+      attribution: mbAttr,
+    }),
+    dark = L.tileLayer(mbUrl, {
+      id: "mapbox/dark-v10",
+      tileSize: 512,
+      zoomOffset: -1,
+      attribution: mbAttr,
+    });
+
+  var map = L.map("mapid", {
+    center: [details.latitude, details.longitude],
+    zoom: 10,
+    layers: [Light],
+  });
+
+  var baseLayers = {
+    Light: Light,
+    Streets: streets,
+    Dark: dark,
+    Satelite: sat,
+  };
+
+  L.control.layers(baseLayers).addTo(map);
+}
