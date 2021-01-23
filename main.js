@@ -88,11 +88,110 @@ function myLocation(position) {
     zoom: 10,
     layers: [Light],
   });
+  //...-----
+
+  //---------------------------------------https://github.com/geoman-io/leaflet-geoman------
+  /*
   map.pm.addControls({
     position: "topleft",
-    drawCircle: false,
+    drawCircle: true,
+  });
+  map.pm.disableDraw();
+*/
+  //-----------bt guardar
+  /*
+   var save = {
+    name: "save",
+    title: "save",
+    className: "#save",
+    onClick: save,
+  };
+
+  map.pm.Toolbar.createCustomControl(save);
+
+ const saveMarker = (data) => {
+    axios
+      .post(`http://localhost:3002/save`, {
+        data: data,
+      })
+      .then((response) => {
+        console.log(response);
+      });
+  };
+  map.on("pm:create", (dataGeo) => {
+    console.log(dataGeo);
+
+    if (dataGeo.shape == "Marker") {
+      //const dataGeoS = JSON.stringify(dataGeo);
+      saveMarker(dataGeo);
+    }
+  });
+*/
+  ///------------------------------------------------------------------------------------------
+
+  var featureGroup = L.featureGroup().addTo(map);
+  var drawControl = new L.Control.Draw({
+    edit: {
+      featureGroup: featureGroup,
+    },
+  }).addTo(map);
+
+  map.on("draw:created", function (e) {
+    // Each time a feaute is created, it's added to the over arching feature group
+    featureGroup.addLayer(e.layer);
   });
 
+  // on click, clear all layers
+  document.getElementById("delete").onclick = function (e) {
+    featureGroup.clearLayers();
+  };
+
+  document.getElementById("export").onclick = function (e) {
+    // Extract GeoJson from featureGroup
+    var datajson = featureGroup.toGeoJSON();
+
+    // Stringify the GeoJson
+    var convertedData =
+      "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(datajson));
+
+    console.log(datajson.features);
+
+    //----
+    var ajax = new XMLHttpRequest();
+    ajax.open("POST", "http://localhost:3001/save", true);
+    ajax.setRequestHeader("Content-type", "application/json");
+    ajax.send(datajson);
+    ajax.onreadystatechange = function () {
+      // Caso o state seja 4 e o http.status for 200, é porque a requisiçõe deu certo.
+      if (ajax.readyState == 4 && ajax.status == 200) {
+        var data = ajax.responseText;
+
+        // Retorno do Ajax
+        console.log(data);
+      }
+    };
+
+    //---
+
+    /*// Create export
+    document
+      .getElementById("export")
+      .setAttribute("href", "data:" + convertedData);
+    document.getElementById("export").setAttribute("download", "data.geojson");*/
+    /*
+    var xhr = new XMLHttpRequest();
+    var url = "http://localhost:3001/save";
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        var json = JSON.parse(xhr.data);
+        console.log(json);
+      }
+    };
+    xhr.send(convertedData);
+*/
+  };
   var baseLayers = {
     Light: Light,
     Streets: streets,
