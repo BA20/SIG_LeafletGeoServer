@@ -151,8 +151,8 @@ function myLocation(position) {
     var datajson = featureGroup.toGeoJSON();
 
     // Stringify the GeoJson
-    var convertedData =
-      "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(datajson));
+    var convertedData = JSON.stringify(datajson.features);
+    //"text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(datajson));
 
     console.log(datajson.features);
 
@@ -160,7 +160,7 @@ function myLocation(position) {
     var ajax = new XMLHttpRequest();
     ajax.open("POST", "http://localhost:3000/save", true);
     ajax.setRequestHeader("Content-type", "application/json");
-    ajax.send(datajson);
+    ajax.send(convertedData);
     ajax.onreadystatechange = function () {
       // Caso o state seja 4 e o http.status for 200, é porque a requisiçõe deu certo.
       if (ajax.readyState == 4 && ajax.status == 200) {
