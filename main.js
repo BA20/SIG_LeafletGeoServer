@@ -81,52 +81,37 @@ function myLocation(position) {
         format: "image/png",
         transparent: true,
       }
+    ),
+    wmsAves = L.tileLayer.wms(
+      "http://localhost:8080/geoserver/SIG21/wms?SIG21%3ABDG_dir_aves_2013_2018&service=WMS&?",
+      {
+        layers: "SIG21:BDG_dir_aves_2013_2018",
+        format: "image/png",
+        transparent: true,
+      }
+    ),
+    wfsbiogeneticas = L.tileLayer.wms(
+      "http://si.icnf.pt/wfs/reservas_biogeneticas",
+      {
+        format: "image/png",
+        transparent: true,
+      }
+    ),
+    wmslines = L.tileLayer.wms(
+      "http://localhost:8080/geoserver/SIG21/wms?SIG21%3Aoccurrences_line&service=WMS&?",
+      {
+        layers: "SIG21:occurrences_line",
+        format: "image/png",
+        transparent: true,
+      }
     );
-
+  //http://localhost:8080/geoserver/SIG21/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIG21%3AEcopistas&maxFeatures=50&outputFormat=application%2Fjson
   var map = L.map("mapid", {
     center: [details.latitude, details.longitude],
     zoom: 10,
     layers: [Light],
   });
-  //...-----
 
-  //---------------------------------------https://github.com/geoman-io/leaflet-geoman------
-  /*
-  map.pm.addControls({
-    position: "topleft",
-    drawCircle: true,
-  });
-  map.pm.disableDraw();
-*/
-  //-----------bt guardar
-  /*
-   var save = {
-    name: "save",
-    title: "save",
-    className: "#save",
-    onClick: save,
-  };
-
-  map.pm.Toolbar.createCustomControl(save);
-
- const saveMarker = (data) => {
-    axios
-      .post(`http://localhost:3002/save`, {
-        data: data,
-      })
-      .then((response) => {
-        console.log(response);
-      });
-  };
-  map.on("pm:create", (dataGeo) => {
-    console.log(dataGeo);
-
-    if (dataGeo.shape == "Marker") {
-      //const dataGeoS = JSON.stringify(dataGeo);
-      saveMarker(dataGeo);
-    }
-  });
-*/
   ///------------------------------------------------------------------------------------------
 
   var featureGroup = L.featureGroup().addTo(map);
@@ -145,53 +130,110 @@ function myLocation(position) {
   document.getElementById("delete").onclick = function (e) {
     featureGroup.clearLayers();
   };
+  function save() {
+    console.log("works");
+  }
 
-  document.getElementById("export").onclick = function (e) {
+  document.getElementById("save").onclick = function (e) {
     // Extract GeoJson from featureGroup
+    console.log(featureGroup);
     var datajson = featureGroup.toGeoJSON();
-
-    // Stringify the GeoJson
-    var convertedData = JSON.stringify(datajson.features);
-    //"text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(datajson));
-
-    console.log(datajson.features);
-
-    //----
-    var ajax = new XMLHttpRequest();
-    ajax.open("POST", "http://localhost:3000/save", true);
-    ajax.setRequestHeader("Content-type", "application/json");
-    ajax.send(convertedData);
-    ajax.onreadystatechange = function () {
-      // Caso o state seja 4 e o http.status for 200, é porque a requisiçõe deu certo.
-      if (ajax.readyState == 4 && ajax.status == 200) {
-        var data = ajax.responseText;
-
-        // Retorno do Ajax
-        console.log(data);
+    console.log(datajson);
+    let datageoPto = [];
+    let datageoPl = [];
+    let datageoLs = [];
+    var datafe = datajson.features.length;
+    for (i = 0; i < datafe; i++) {
+      const point = "Point";
+      const Polygon = "Polygon";
+      const LineString = "LineString";
+      console.log("entr");
+      if (datajson.features[i].geometry.type.localeCompare(point) == 0) {
+        datageoPto.push([datajson.features[i].geometry.coordinates]);
+        console.log(datajson.features[i].geometry);
       }
-    };
+      if (datajson.features[i].geometry.type.localeCompare(Polygon) == 0) {
+        datageoPl.push(datajson.features[i].geometry.coordinates);
+        console.log(datajson.features[i].geometry);
+      }
+      if (datajson.features[i].geometry.type.localeCompare(LineString) == 0) {
+        datageoLs.push(datajson.features[i].geometry.coordinates);
+        console.log(datajson.features[i].geometry);
+      }
+    }
+
+    console.log(datageoPto);
+    console.log(datageoPl);
+    console.log(datageoLs);
+    if (!datageoPto.length == 0) {
+      // Stringify the GeoJson
+      var convertedData = JSON.stringify(datageoPto);
+      //"text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(datajson));
+
+      //----
+      var ajax = new XMLHttpRequest();
+      ajax.open("POST", "http://localhost:3000/savePt", true);
+      ajax.setRequestHeader("Content-type", "application/json");
+      ajax.send(convertedData);
+      ajax.onreadystatechange = function () {
+        // Caso o state seja 4 e o http.status for 200, é porque a requisiçõe deu certo.
+        if (ajax.readyState == 4 && ajax.status == 200) {
+          var data = ajax.responseText;
+
+          // Retorno do Ajax
+          console.log(data);
+        }
+      };
+    }
+    if (!datageoPl.length == 0) {
+      // Stringify the GeoJson
+      var convertedData = JSON.stringify(datageoPl);
+      //"text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(datajson));
+
+      //----
+      var ajax = new XMLHttpRequest();
+      ajax.open("POST", "http://localhost:3000/savePl", true);
+      ajax.setRequestHeader("Content-type", "application/json");
+      ajax.send(convertedData);
+      ajax.onreadystatechange = function () {
+        // Caso o state seja 4 e o http.status for 200, é porque a requisiçõe deu certo.
+        if (ajax.readyState == 4 && ajax.status == 200) {
+          var data = ajax.responseText;
+
+          // Retorno do Ajax
+          console.log(data);
+        }
+      };
+    }
+    if (!datageoLs.length == 0) {
+      // Stringify the GeoJson
+      var convertedData = JSON.stringify(datageoLs);
+      //"text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(datajson));
+
+      //----
+      var ajax = new XMLHttpRequest();
+      ajax.open("POST", "http://localhost:3000/saveLs", true);
+      ajax.setRequestHeader("Content-type", "application/json");
+      ajax.send(convertedData);
+      ajax.onreadystatechange = function () {
+        // Caso o state seja 4 e o http.status for 200, é porque a requisiçõe deu certo.
+        if (ajax.readyState == 4 && ajax.status == 200) {
+          var data = ajax.responseText;
+
+          // Retorno do Ajax
+          console.log(data);
+        }
+      };
+    }
 
     //---
-
-    /*// Create export
+  };
+  /*// Create export
     document
       .getElementById("export")
       .setAttribute("href", "data:" + convertedData);
-    document.getElementById("export").setAttribute("download", "data.geojson");*/
-    /*
-    var xhr = new XMLHttpRequest();
-    var url = "http://localhost:3001/save";
-    xhr.open("POST", url, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        var json = JSON.parse(xhr.data);
-        console.log(json);
-      }
-    };
-    xhr.send(convertedData);
-*/
-  };
+    document.getElementById("export").setAttribute("download", "data.geojson");
+  };*/
   var baseLayers = {
     Light: Light,
     Streets: streets,
@@ -200,7 +242,10 @@ function myLocation(position) {
   };
 
   var overlayMaps = {
-    WMSRedeViaria: wmsredeviaria,
+    RedeViaria: wmsredeviaria,
+    Aves: wmsAves,
+    Linhas: wmslines,
+    wfsbiogeneticas: wfsbiogeneticas,
   };
 
   L.control.layers(baseLayers, overlayMaps).addTo(map);

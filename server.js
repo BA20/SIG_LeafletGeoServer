@@ -36,8 +36,52 @@ app.use((req, res, next) => {
   app.use(cors());
   next();
 });
-app.post("/save", (req, res) => {
-  console.log(req);
+
+function geom(long, lat) {
+  pool.query(
+    `SELECT ST_SetSRID( ST_Point( ${long}, ${lat}), 4326)`,
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      console.log(results);
+    }
+  );
+}
+
+app.post("/savePt", (req, res) => {
+  console.log("savePt:");
+  var datai = req.body.length;
+  console.log(req.body);
+  //  for (i = 0; i < datai; i++) {
+  var long = req.body[0][0];
+  console.log(long);
+  var lat = req.body[0][1];
+  console.log(lat);
+
+  pool.query(
+    `INSERT INTO public.occurrences_point(id,name,type,date,point,image) VALUES (,'point', 1, '2021-01-01 00:00:00', ST_SetSRID(ST_MakePoint(${req.body[0]}), 4326), '10926638')`,
+    [long, lat],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+
+      console.log(results);
+    }
+  );
+  //}
+});
+app.post("/savePl", (req, res) => {
+  console.log("savePl:");
+  var geoJson = JSON.stringify(req.body);
+  console.log(geoJson);
+});
+app.post("/saveLs", (req, res) => {
+  console.log("saveLs:");
+
+  var geoJson = JSON.stringify(req.body);
+  console.log(geoJson);
 });
 
 app.listen(port, () => {

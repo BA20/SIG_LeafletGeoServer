@@ -16,11 +16,5 @@ body {
 }
 
 #mapid {
-  height: 100vh;
-}
-
-#save {
-  content: url("./media/iconguardar.png");
-  width: 80%;
-  height: 80%;
+  height: 95vh;
 }

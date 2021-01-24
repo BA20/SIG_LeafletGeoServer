@@ -14,18 +14,20 @@
    crossorigin=""></script> 
    <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.css" />
    <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.min.js"></script>   
-<link rel="stylesheet" href="leaflet-example.css" />
+
  <!--Add draw plugin -->
  <link rel='stylesheet' href='//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.css' />
  <script src='//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.2/leaflet.draw.js'></script>
  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
  <script rel="javascript" type="text/javascript" href="js/jquery-1.11.3.min.js"></script>
+
+ <link rel="stylesheet" href="leaflet-example.css" />
 </head>
 <body>
     <div id="mapid"></div>
-  <div id='delete'>Delete Features</div>
-    <a href='#' id='export'>Export Features</a>
  
+    <button id='delete'>Eliminar Shapes Layer</button>
+    <button id='save'>Guardar Shapes Layer</button>
     <script src="main.js"></script>
 </body>
 </html>
