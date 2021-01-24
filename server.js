@@ -1,17 +1,30 @@
 const express = require("express");
-const app = express();
 const bodyParser = require("body-parser");
-app.use(bodyParser.json());
+const app = express();
 const cors = require("cors");
+const port = 3000;
+app.use(bodyParser.json());
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 
-const { Pool, Client } = require("pg");
+app.use(
+  cors({
+    origin: "http://localhost",
+    methods: ["GET", "POST", "DELETE", "PUT"],
+  })
+);
 
+app.use(bodyParser.urlencoded({ extended: true }));
+const Pool = require("pg").Pool;
 const pool = new Pool({
   user: "postgres",
   host: "127.0.0.1",
   database: "SIG_21",
   password: "joseco",
-  port: 56185,
+  port: 5432,
 });
 
 pool.connect((err) => {
@@ -24,11 +37,9 @@ app.use((req, res, next) => {
   next();
 });
 app.post("/save", (req, res) => {
-  const convertedData = req.body.data;
   console.log(req);
-  res.send(res);
 });
 
-app.listen(3001, () => {
-  console.log(`runnig server! http://localhost:3001/`);
+app.listen(port, () => {
+  console.log(`runnig server! http://localhost:${port}/`);
 });

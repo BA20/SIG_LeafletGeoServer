@@ -158,7 +158,7 @@ function myLocation(position) {
 
     //----
     var ajax = new XMLHttpRequest();
-    ajax.open("POST", "http://localhost:3001/save", true);
+    ajax.open("POST", "http://localhost:3000/save", true);
     ajax.setRequestHeader("Content-type", "application/json");
     ajax.send(datajson);
     ajax.onreadystatechange = function () {
