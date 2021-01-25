@@ -84,33 +84,47 @@ app.post("/savePt", (req, res) => {
 });
 app.post("/savePl", (req, res) => {
   console.log("savePl:");
+});
+app.post("/saveLs", (req, res) => {
+  console.log("saveLs:");
+
   var datai = req.body.length;
   console.log(datai);
   console.log(req.body[0]);
   console.log(req.body[1]);
-  console.log(req.body);
+  //  console.log(req.body);
   for (i = 0; i < datai; i++) {
     console.log(i);
-    console.log(req.body);
-    var long = req.body[0][i].coordinates[0];
-    console.log(long);
-    var lat = req.body[0][i].coordinates[1];
-    console.log(lat);
-    var datatype = req.body[0][i].type;
+    // console.log(req.body);
+    var coords1 = req.body[i].coordinates[0];
+    console.log(coords1);
+    var coords2 = req.body[i].coordinates[1];
+    console.log(coords2);
+    var datatype = req.body[i].type;
     console.log(datatype);
-    console.log("query" + i);
-    pool.query(
-      `SELECT ST_GeomFromEWKT('SRID=4326;POINT(${long} ${lat})');`,
-      (error, results) => {
-        if (error) {
-          throw error;
-        }
-        var geom;
-        for (i = 0; results.rows.length; i++) {
-          console.log(results.rows[i].st_geomfromewkt);
-          geom.push(results.rows[i].st_geomfromewkt);
-        }
-        pool.query(
+   
+    
+for(i=0;i<2;i++){
+
+
+
+
+  
+   pool.query(
+    `SELECT ST_GeomFromEWKT('SRID=4326;POINT(${long} ${lat})');`,
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      //var geom;
+      //  for (i = 0; results.rows.length; i++) {
+      console.log(results.rows); } //[i].st_geomfromewkt);
+  //   geom.push(results.rows[i].st_geomfromewkt);
+  // }
+    
+    );
+  }
+  /*pool.query(
           `INSERT INTO public.linhas(type,geometry) VALUES ('${datatype}','${geom}')`,
           (err, rese) => {
             if (err) {
@@ -119,16 +133,9 @@ app.post("/savePl", (req, res) => {
             console.log(i);
             console.log(rese);
           }
-        );
-      }
-    );
-  }
-});
-app.post("/saveLs", (req, res) => {
-  console.log("saveLs:");
+        );*/
+  // }
 
-  var geoJson = JSON.stringify(req.body);
-  console.log(geoJson);
 });
 
 app.listen(port, () => {
