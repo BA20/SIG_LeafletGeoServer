@@ -52,6 +52,39 @@ function geom(long, lat) {
 app.post("/savePt", (req, res) => {
   console.log("savePt:");
   var datai = req.body.length;
+  console.log(datai + " Pontos");
+  for (i = 0; i < datai; i++) {
+    var long = req.body[i][0].coordinates[0];
+
+    var lat = req.body[i][0].coordinates[1];
+
+    var datatype = req.body[i][0].type;
+
+    pool.query(
+      `SELECT ST_GeomFromEWKT('SRID=4326;POINT(${long} ${lat})');`,
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+
+        var geom = results.rows[0].st_geomfromewkt;
+        pool.query(
+          `INSERT INTO public.point(type,geometry) VALUES ('${datatype}','${geom}')`,
+          (err, rese) => {
+            if (err) {
+              throw err;
+            }
+
+            console.log("Novo ponto");
+          }
+        );
+      }
+    );
+  }
+});
+app.post("/savePl", (req, res) => {
+  console.log("savePl:");
+  var datai = req.body.length;
   console.log(datai);
   console.log(req.body[0]);
   console.log(req.body[1]);
@@ -72,10 +105,13 @@ app.post("/savePt", (req, res) => {
         if (error) {
           throw error;
         }
-        console.log(results.rows[0].st_geomfromewkt);
-        var geom = results.rows[0].st_geomfromewkt;
+        var geom;
+        for (i = 0; results.rows.length; i++) {
+          console.log(results.rows[i].st_geomfromewkt);
+          geom.push(results.rows[i].st_geomfromewkt);
+        }
         pool.query(
-          `INSERT INTO public.point(type,geometry) VALUES ('${datatype}','${geom}')`,
+          `INSERT INTO public.linhas(type,geometry) VALUES ('${datatype}','${geom}')`,
           (err, rese) => {
             if (err) {
               throw err;
@@ -87,11 +123,6 @@ app.post("/savePt", (req, res) => {
       }
     );
   }
-});
-app.post("/savePl", (req, res) => {
-  console.log("savePl:");
-  var geoJson = JSON.stringify(req.body);
-  console.log(geoJson);
 });
 app.post("/saveLs", (req, res) => {
   console.log("saveLs:");
