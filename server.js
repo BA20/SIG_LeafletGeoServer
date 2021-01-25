@@ -84,58 +84,96 @@ app.post("/savePt", (req, res) => {
 });
 app.post("/savePl", (req, res) => {
   console.log("savePl:");
+  var datai = req.body.length;
+  console.log(datai);
+
+  console.log(req.body);
+  //  console.log(req.body);
+
+  for (i = 0; i < datai; i++) {
+    console.log(i);
+    console.log("-----------");
+    var datatype = req.body[i].type;
+    console.log(datatype);
+    var dataNCoordinates = req.body[i].coordinates[0].length;
+    console.log(dataNCoordinates);
+    var geomClong = [];
+    var geomClat = [];
+    for (z = 0; z < dataNCoordinates; z++) {
+      geomClong.push(req.body[i].coordinates[0][z][0]);
+
+      geomClat.push(req.body[i].coordinates[0][z][1]);
+    }
+    var queryG = "";
+    for (w = 0; w < dataNCoordinates; w++) {
+      if (w < dataNCoordinates - 1) {
+        queryG += `${geomClong[w]} ${geomClat[w]},`;
+      } else {
+        queryG += `${geomClong[w]} ${geomClat[w]}`;
+      }
+    }
+
+    pool.query(
+      `SELECT ST_GeomFromEWKT('SRID=4326;POLYGON((${queryG}))');`,
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        var geomGeo = results.rows[0].st_geomfromewkt;
+
+        pool.query(
+          `INSERT INTO public.poly(type, geometry) VALUES ('${datatype}','${geomGeo}')`,
+          (err, rese) => {
+            if (err) {
+              throw err;
+            }
+
+            console.log("Novo Poly");
+          }
+        );
+      }
+    );
+  }
 });
 app.post("/saveLs", (req, res) => {
   console.log("saveLs:");
 
   var datai = req.body.length;
   console.log(datai);
-  console.log(req.body[0]);
-  console.log(req.body[1]);
+
+  console.log(req.body);
   //  console.log(req.body);
   for (i = 0; i < datai; i++) {
     console.log(i);
-    // console.log(req.body);
-    var coords1 = req.body[i].coordinates[0];
-    console.log(coords1);
-    var coords2 = req.body[i].coordinates[1];
-    console.log(coords2);
+    console.log("-----------");
     var datatype = req.body[i].type;
     console.log(datatype);
-   
-    
-for(i=0;i<2;i++){
+    var geomC1long = req.body[i].coordinates[0][0];
+    var geomC1lat = req.body[i].coordinates[0][1];
+    var geomC2long = req.body[i].coordinates[1][0];
+    var geomC2lat = req.body[i].coordinates[1][1];
 
-
-
-
-  
-   pool.query(
-    `SELECT ST_GeomFromEWKT('SRID=4326;POINT(${long} ${lat})');`,
-    (error, results) => {
-      if (error) {
-        throw error;
-      }
-      //var geom;
-      //  for (i = 0; results.rows.length; i++) {
-      console.log(results.rows); } //[i].st_geomfromewkt);
-  //   geom.push(results.rows[i].st_geomfromewkt);
-  // }
-    
-    );
-  }
-  /*pool.query(
-          `INSERT INTO public.linhas(type,geometry) VALUES ('${datatype}','${geom}')`,
+    pool.query(
+      `SELECT ST_GeomFromEWKT('SRID=4326;LINESTRING(${geomC1long} ${geomC1lat},${geomC2long} ${geomC2lat}) ');`,
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        var geomGeo = results.rows[0].st_geomfromewkt;
+        console.log(geomGeo);
+        pool.query(
+          `INSERT INTO public.linhas(type, geometry) VALUES ('${datatype}','${geomGeo}')`,
           (err, rese) => {
             if (err) {
               throw err;
             }
-            console.log(i);
-            console.log(rese);
-          }
-        );*/
-  // }
 
+            console.log("Novo LINHA");
+          }
+        );
+      }
+    );
+  }
 });
 
 app.listen(port, () => {

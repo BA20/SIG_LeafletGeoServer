@@ -225,7 +225,7 @@ function myLocation(position) {
         }
       };
     }
-
+    featureGroup.clearLayers();
     //---
   };
   /*// Create export
