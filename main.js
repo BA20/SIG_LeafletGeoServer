@@ -149,15 +149,15 @@ function myLocation(position) {
       const LineString = "LineString";
       console.log("entr");
       if (datajson.features[i].geometry.type.localeCompare(point) == 0) {
-        datageoPto.push([datajson.features[i].geometry.coordinates]);
+        datageoPto.push([datajson.features[i].geometry]);
         console.log(datajson.features[i].geometry);
       }
       if (datajson.features[i].geometry.type.localeCompare(Polygon) == 0) {
-        datageoPl.push(datajson.features[i].geometry.coordinates);
+        datageoPl.push(datajson.features[i].geometry);
         console.log(datajson.features[i].geometry);
       }
       if (datajson.features[i].geometry.type.localeCompare(LineString) == 0) {
-        datageoLs.push(datajson.features[i].geometry.coordinates);
+        datageoLs.push(datajson.features[i].geometry);
         console.log(datajson.features[i].geometry);
       }
     }

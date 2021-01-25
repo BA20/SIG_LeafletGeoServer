@@ -52,25 +52,41 @@ function geom(long, lat) {
 app.post("/savePt", (req, res) => {
   console.log("savePt:");
   var datai = req.body.length;
+  console.log(datai);
+  console.log(req.body[0]);
+  console.log(req.body[1]);
   console.log(req.body);
-  //  for (i = 0; i < datai; i++) {
-  var long = req.body[0][0];
-  console.log(long);
-  var lat = req.body[0][1];
-  console.log(lat);
-
-  pool.query(
-    `INSERT INTO public.occurrences_point(id,name,type,date,point,image) VALUES (,'point', 1, '2021-01-01 00:00:00', ST_SetSRID(ST_MakePoint(${req.body[0]}), 4326), '10926638')`,
-    [long, lat],
-    (error, results) => {
-      if (error) {
-        throw error;
+  for (i = 0; i < datai; i++) {
+    console.log(i);
+    console.log(req.body);
+    var long = req.body[0][i].coordinates[0];
+    console.log(long);
+    var lat = req.body[0][i].coordinates[1];
+    console.log(lat);
+    var datatype = req.body[0][i].type;
+    console.log(datatype);
+    console.log("query" + i);
+    pool.query(
+      `SELECT ST_GeomFromEWKT('SRID=4326;POINT(${long} ${lat})');`,
+      (error, results) => {
+        if (error) {
+          throw error;
+        }
+        console.log(results.rows[0].st_geomfromewkt);
+        var geom = results.rows[0].st_geomfromewkt;
+        pool.query(
+          `INSERT INTO public.point(type,geometry) VALUES ('${datatype}','${geom}')`,
+          (err, rese) => {
+            if (err) {
+              throw err;
+            }
+            console.log(i);
+            console.log(rese);
+          }
+        );
       }
-
-      console.log(results);
-    }
-  );
-  //}
+    );
+  }
 });
 app.post("/savePl", (req, res) => {
   console.log("savePl:");
