@@ -97,15 +97,28 @@ function myLocation(position) {
         transparent: true,
       }
     ),
-    wmslines = L.tileLayer.wms(
-      "http://localhost:8080/geoserver/SIG21/wms?SIG21%3Aoccurrences_line&service=WMS&?",
-      {
-        layers: "SIG21:occurrences_line",
-        format: "image/png",
-        transparent: true,
-      }
-    );
-  //http://localhost:8080/geoserver/SIG21/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SIG21%3AEcopistas&maxFeatures=50&outputFormat=application%2Fjson
+    wmslines = L.tileLayer.wms("http://localhost:8080/geoserver/SIG21/wms?", {
+      layers: "SIG21:linhas",
+      format: "image/png",
+      transparent: true,
+      version: "1.1.0",
+      attribution: "myattribution",
+    }),
+    wmspoints = L.tileLayer.wms("http://localhost:8080/geoserver/SIG21/wms?", {
+      layers: "SIG21:point",
+      format: "image/png",
+      transparent: true,
+      version: "1.1.0",
+      attribution: "myattribution",
+    }),
+    wmspoly = L.tileLayer.wms("http://localhost:8080/geoserver/SIG21/wms?", {
+      layers: "SIG21:poly",
+      format: "image/png",
+      transparent: true,
+      version: "1.1.0",
+      attribution: "myattribution",
+    });
+
   var map = L.map("mapid", {
     center: [details.latitude, details.longitude],
     zoom: 10,
@@ -130,10 +143,6 @@ function myLocation(position) {
   document.getElementById("delete").onclick = function (e) {
     featureGroup.clearLayers();
   };
-  function save() {
-    console.log("works");
-  }
-
   document.getElementById("save").onclick = function (e) {
     // Extract GeoJson from featureGroup
     console.log(featureGroup);
@@ -228,12 +237,76 @@ function myLocation(position) {
     featureGroup.clearLayers();
     //---
   };
+
+  // document.getElementById("ptos").onclick = function (e) {
+  axios
+    .get("http://localhost:3000/getpontos")
+    .then(function (response) {
+      console.log(response.data);
+      var dataL = response.data;
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  // };
+
+  // document.getElementById("ls").onclick = function (e) {
+  axios
+    .get("http://localhost:3000/getls")
+    .then(function (response) {
+      console.log(response.data);
+      var dataL = response.data;
+      var tblBody = document.createElement("tbody");
+      for (i = 0; i < response.data.length; i++) {
+        var row = document.createElement("tr");
+        for (var j = 0; j < response.data; j++) {
+          var cell = document.createElement("td");
+          var cellText = document.createTextNode(
+            "cell in row " + i + ", column " + j
+          );
+          cell.appendChild(cellText);
+          row.appendChild(cell);
+        }
+
+        // add the row to the end of the table body
+        tblBody.appendChild(row);
+      }
+
+      // put the <tbody> in the <table>
+      tbl.appendChild(tblBody);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  // };
+  // document.getElementById("Pl").onclick = function (e) {
+  axios
+    .get("http://localhost:3000/getpl")
+    .then(function (response) {
+      console.log(response.data);
+      var dataL = response.data;
+      var convertedData = dataL.toGeoJSON();
+      L.geoJson(convertedData, {
+        onEachFeature: onEachFeature,
+      });
+
+      // };
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
   /*// Create export
     document
       .getElementById("export")
       .setAttribute("href", "data:" + convertedData);
     document.getElementById("export").setAttribute("download", "data.geojson");
   };*/
+
+  function onEachFeature(feature, layer) {
+    drawnItems.addLayer(layer);
+  }
+
   var baseLayers = {
     Light: Light,
     Streets: streets,
@@ -245,6 +318,8 @@ function myLocation(position) {
     RedeViaria: wmsredeviaria,
     Aves: wmsAves,
     Linhas: wmslines,
+    Pontos: wmspoints,
+    Polígonos: wmspoly,
     wfsbiogeneticas: wfsbiogeneticas,
   };
 

@@ -37,18 +37,6 @@ app.use((req, res, next) => {
   next();
 });
 
-function geom(long, lat) {
-  pool.query(
-    `SELECT ST_SetSRID( ST_Point( ${long}, ${lat}), 4326)`,
-    (error, results) => {
-      if (error) {
-        throw error;
-      }
-      console.log(results);
-    }
-  );
-}
-
 app.post("/savePt", (req, res) => {
   console.log("savePt:");
   var datai = req.body.length;
@@ -59,7 +47,7 @@ app.post("/savePt", (req, res) => {
     var lat = req.body[i][0].coordinates[1];
 
     var datatype = req.body[i][0].type;
-
+    var coordinates = req.body[i].coordinates;
     pool.query(
       `SELECT ST_GeomFromEWKT('SRID=4326;POINT(${long} ${lat})');`,
       (error, results) => {
@@ -67,9 +55,9 @@ app.post("/savePt", (req, res) => {
           throw error;
         }
 
-        var geom = results.rows[0].st_geomfromewkt;
+        var geomGeo = results.rows[0].st_geomfromewkt;
         pool.query(
-          `INSERT INTO public.point(type,geometry) VALUES ('${datatype}','${geom}')`,
+          `INSERT INTO public.point(type,geometry,coordinates) VALUES ('${datatype}','${geomGeo}','${coordinates}')`,
           (err, rese) => {
             if (err) {
               throw err;
@@ -97,6 +85,7 @@ app.post("/savePl", (req, res) => {
     console.log(datatype);
     var dataNCoordinates = req.body[i].coordinates[0].length;
     console.log(dataNCoordinates);
+    var coordinates = req.body[i].coordinates;
     var geomClong = [];
     var geomClat = [];
     for (z = 0; z < dataNCoordinates; z++) {
@@ -122,7 +111,7 @@ app.post("/savePl", (req, res) => {
         var geomGeo = results.rows[0].st_geomfromewkt;
 
         pool.query(
-          `INSERT INTO public.poly(type, geometry) VALUES ('${datatype}','${geomGeo}')`,
+          `INSERT INTO public.poly(type, geometry,coordinates) VALUES ('${datatype}','${geomGeo}','${coordinates}')`,
           (err, rese) => {
             if (err) {
               throw err;
@@ -148,6 +137,8 @@ app.post("/saveLs", (req, res) => {
     console.log("-----------");
     var datatype = req.body[i].type;
     console.log(datatype);
+    var coordinates = req.body[i].coordinates;
+    console.log(coordinates);
     var geomC1long = req.body[i].coordinates[0][0];
     var geomC1lat = req.body[i].coordinates[0][1];
     var geomC2long = req.body[i].coordinates[1][0];
@@ -162,7 +153,7 @@ app.post("/saveLs", (req, res) => {
         var geomGeo = results.rows[0].st_geomfromewkt;
         console.log(geomGeo);
         pool.query(
-          `INSERT INTO public.linhas(type, geometry) VALUES ('${datatype}','${geomGeo}')`,
+          `INSERT INTO public.linhas(type, geometry,coordinates) VALUES ('${datatype}','${geomGeo}','${coordinates}')`,
           (err, rese) => {
             if (err) {
               throw err;
@@ -174,6 +165,38 @@ app.post("/saveLs", (req, res) => {
       }
     );
   }
+});
+//-------------------------------------------------
+
+app.get("/getpontos", (req, res) => {
+  pool.query("SELECT id,coordinates,type FROM public.point", (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(result.rows);
+      res.json(result.rows);
+    }
+  });
+});
+app.get("/getls", (req, res) => {
+  pool.query("SELECT id,coordinates,type FROM public.linhas", (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(result.rows);
+      res.json(result.rows);
+    }
+  });
+});
+app.get("/getpl", (req, res) => {
+  pool.query("SELECT id,coordinates,type FROM public.poly", (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(result.rows);
+      res.json(result.rows);
+    }
+  });
 });
 
 app.listen(port, () => {
