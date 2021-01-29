@@ -139,24 +139,53 @@ function myLocation(position) {
     featureGroup.addLayer(e.layer);
   });
 
+  document.getElementById("addLayer").onclick = function (e) {
+    axios
+      .get("http://localhost:3000/getlayer")
+      .then(function (response) {
+        console.log("layer");
+        var dataJson = JSON.parse(response.data.rows[0].concat);
+        console.log(dataJson);
+        //L.geoJSON(dataJson).addTo(e.layer);
+        var geojsonLayer = L.geoJson(dataJson);
+        featureGroup.addLayer(geojsonLayer);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
   // on click, clear all layers
   document.getElementById("delete").onclick = function (e) {
     featureGroup.clearLayers();
   };
   document.getElementById("save").onclick = function (e) {
     // Extract GeoJson from featureGroup
-    console.log(featureGroup);
+
     var datajson = featureGroup.toGeoJSON();
+    console.log("asdasdas");
     console.log(datajson);
     let datageoPto = [];
     let datageoPl = [];
     let datageoLs = [];
     var datafe = datajson.features.length;
+
+    axios
+      .post(`http://localhost:3000/saveGeojson`, {
+        json: datajson,
+      })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
     for (i = 0; i < datafe; i++) {
       const point = "Point";
       const Polygon = "Polygon";
       const LineString = "LineString";
-      console.log("entr");
+
       if (datajson.features[i].geometry.type.localeCompare(point) == 0) {
         datageoPto.push([datajson.features[i].geometry]);
         console.log(datajson.features[i].geometry);
@@ -239,11 +268,50 @@ function myLocation(position) {
   };
 
   // document.getElementById("ptos").onclick = function (e) {
+  function deletePid(id) {
+    /* axios
+        .post(`http://localhost:3000/deletePto`, {
+          id: id,
+        })
+        .then((response) => {
+          console.log(response);
+          loadData();
+        })
+        .catch(function (error) {
+          console.log(error);
+        });*/
+    console.log(id);
+  }
+  function deleteLSid(id) {
+    axios
+      .post(`http://localhost:3000/deleteLs`, {
+        id: id,
+      })
+      .then((response) => {
+        console.log(response);
+        loadData();
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+  function deletePLid(id) {
+    axios
+      .post(`http://localhost:3000/deletePoly`, {
+        id: id,
+      })
+      .then((response) => {
+        console.log(response);
+        loadData();
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
   axios
     .get("http://localhost:3000/getpontos")
     .then(function (response) {
       console.log(response.data);
-      var dataL = response.data;
     })
     .catch(function (error) {
       console.log(error);
@@ -255,25 +323,6 @@ function myLocation(position) {
     .get("http://localhost:3000/getls")
     .then(function (response) {
       console.log(response.data);
-      var dataL = response.data;
-      var tblBody = document.createElement("tbody");
-      for (i = 0; i < response.data.length; i++) {
-        var row = document.createElement("tr");
-        for (var j = 0; j < response.data; j++) {
-          var cell = document.createElement("td");
-          var cellText = document.createTextNode(
-            "cell in row " + i + ", column " + j
-          );
-          cell.appendChild(cellText);
-          row.appendChild(cell);
-        }
-
-        // add the row to the end of the table body
-        tblBody.appendChild(row);
-      }
-
-      // put the <tbody> in the <table>
-      tbl.appendChild(tblBody);
     })
     .catch(function (error) {
       console.log(error);
@@ -284,11 +333,6 @@ function myLocation(position) {
     .get("http://localhost:3000/getpl")
     .then(function (response) {
       console.log(response.data);
-      var dataL = response.data;
-      var convertedData = dataL.toGeoJSON();
-      L.geoJson(convertedData, {
-        onEachFeature: onEachFeature,
-      });
 
       // };
     })
@@ -302,10 +346,6 @@ function myLocation(position) {
       .setAttribute("href", "data:" + convertedData);
     document.getElementById("export").setAttribute("download", "data.geojson");
   };*/
-
-  function onEachFeature(feature, layer) {
-    drawnItems.addLayer(layer);
-  }
 
   var baseLayers = {
     Light: Light,
