@@ -255,10 +255,11 @@ app.post("/saveGeojson", (req, res) => {
   var json = JSON.stringify(req.body.json);
   console.log(json);
 
-  pool.query(`DELETE FROM public.leaflet_layer`, (err, result) => {
+  pool.query(`DELETE  FROM public.leaflet_layer`, (err, result) => {
     if (err) {
       console.log(err);
     } else {
+      console.log("delete");
       pool.query(
         `INSERT INTO public.leaflet_layer(
 	json)
@@ -267,8 +268,7 @@ app.post("/saveGeojson", (req, res) => {
           if (error) {
             throw error;
           } else {
-            console.log("----------sl");
-            console.log(results.rows);
+            console.log("guardou");
           }
         }
       );
@@ -280,9 +280,7 @@ app.get("/getlayer", (req, res) => {
     if (err) {
       console.log(err);
     } else {
-      console.log("......");
       res.json(result);
-      console.log(result);
     }
   });
 });

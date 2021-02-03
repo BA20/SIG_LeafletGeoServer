@@ -90,13 +90,7 @@ function myLocation(position) {
         transparent: true,
       }
     ),
-    wfsbiogeneticas = L.tileLayer.wms(
-      "http://si.icnf.pt/wfs/reservas_biogeneticas",
-      {
-        format: "image/png",
-        transparent: true,
-      }
-    ),
+    wfsbiogeneticas = L.tileLayer.wms("http://si.icnf.pt/wms/rnap"),
     wmslines = L.tileLayer.wms("http://localhost:8080/geoserver/SIG21/wms?", {
       layers: "SIG21:linhas",
       format: "image/png",
@@ -138,6 +132,10 @@ function myLocation(position) {
     // Each time a feaute is created, it's added to the over arching feature group
     featureGroup.addLayer(e.layer);
   });
+  map.on("draw:deletestop", function (e) {
+    var datajson = featureGroup.toGeoJSON();
+    console.log(datajson);
+  });
 
   document.getElementById("addLayer").onclick = function (e) {
     axios
@@ -145,10 +143,24 @@ function myLocation(position) {
       .then(function (response) {
         console.log("layer");
         var dataJson = JSON.parse(response.data.rows[0].concat);
-        console.log(dataJson);
+        /*  console.log(dataJson);
         //L.geoJSON(dataJson).addTo(e.layer);
         var geojsonLayer = L.geoJson(dataJson);
-        featureGroup.addLayer(geojsonLayer);
+        featureGroup.addLayer(geojsonLayer);*/
+        geojsonlayer = L.geoJson(dataJson, {
+          onEachFeature: function (feature, layer) {
+            featureGroup.addLayer(layer);
+
+            /*   layer.on("click", function (e) {
+              if (selectedFeature) {
+                selectedFeature.editing.disable();
+                // and Here I'll add the code to store my edited polygon in the DB or whatever I want to do with it
+              }
+              selectedFeature = e.target;
+              e.target.editing.enable();
+            });*/
+          },
+        }).addTo(featureGroup);
       })
       .catch(function (error) {
         console.log(error);
