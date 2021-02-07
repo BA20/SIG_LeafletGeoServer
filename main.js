@@ -142,14 +142,6 @@ function myLocation(position) {
         transparent: true,
       }
     ),
-    wmsAves = L.tileLayer.wms(
-      "http://localhost:8080/geoserver/SIG21/wms?SIG21%3ABDG_dir_aves_2013_2018&service=WMS&?",
-      {
-        layers: "SIG21:BDG_dir_aves_2013_2018",
-        format: "image/png",
-        transparent: true,
-      }
-    ),
     wmslines = L.tileLayer.wms("http://localhost:8080/geoserver/SIG21/wms?", {
       layers: "SIG21:linhas",
       format: "image/png",
@@ -398,7 +390,7 @@ function myLocation(position) {
     ifn: wmsifn,
     PontosAgua: wmsPtosagua,
     Caca: wmsCaca,
-    Aves: wmsAves,
+
     WMS_AreasProtegidas: wmsAreaPro,
     WFS_CartaItinerária_Edifícios: wmsEdificios,
     Chuva: raincls,
